@@ -42,30 +42,27 @@ solucion_max_salud :: [[Int]] -> Int
 solucion_max_salud m = g_s 2000 (0, 0) m where 
     g_s = gen_sol ((length (head m)), (length m)) ((length (head m)) -1, (length m) -1)  500 --currifico
    -- gen_sol :: (Int,Int)->(Int,Int)->Int->Int->(Int,Int)->[[Int]] ->Int
-    gen_sol max goal dmg hp actPos map = do
-        if hp <= maxSol
-            then 0
-            else 
-            maximum[
-                --Hago una lista de HPs 
-                case peeked of _
+    gen_sol max goal dmg hp actPos map = do 
+        maximum[
+            --Hago una lista de HPs 
+            case peeked of _
                                 | peeked == goal -> hp 
-                                | peeked == bridge -> do
-                                    let bridgeMove = nextPos +-+ nextDir
-                                    let landingPeek =  if is_valid_step bridgeMove 
-                                        then peek_elem_in_matrix m_map (fst bridgeMove) (snd bridgeMove) 
-                                        else 18 -- 18 es una casilla por la cual ya pasamos y con esto matamos el branch
-                                    case landingPeek of _
-                                        | landingPeek == bridge -> 0
-                                        | landingPeek == goal -> hp
-                                        | otherwise -> let myHP = (peleaE landingPeek hp) in if myHP <= 0 then myHP else g_s myHP bridgeMove m_map
-                                | otherwise -> let myHP = (peleaE peeked hp) in if myHP <= 0 then myHP else g_s myHP bridgeMove m_map
-                | nextDir <- direcciones
-                , let nextPos = actPos +-+ nextDir
-                , is_valid_step nextPos
-                , let peeked = peek_elem_in_matrix m (fst nextPos) (snd nextPos) 
-                
-                ]
+                                | peeked != bridge -> let myHP = (peleaE peeked hp) in if myHP <=0 then myHP else g_s myHP bridgeMove m_map
+                                | otherwise -> do
+                                        let bridgeMove = nextPos +-+ nextDir
+                                        let landingPeek =  if is_valid_step bridgeMove 
+                                            then peek_elem_in_matrix m_map (fst bridgeMove) (snd bridgeMove) 
+                                            else 18 -- 18 es una casilla por la cual ya pasamos y con esto matamos el branch              
+                                            case landingPeek of _ 
+                                                                    | (landingPeek == goal) -> hp 
+                                                                    | (landingPeek == bridge) -> 0 
+                                                                    | otherwise -> 3--let myHP = (peleaE landingPeek hp) in if myHP <=0 then myHP else g_s myHP bridgeMove m_map
+            --| nextDir <- direcciones
+            | let nextPos = actPos +-+ nextDir
+            , is_valid_step nextPos
+            , let peeked = peek_elem_in_matrix m_map (fst nextPos) (snd nextPos) 
+             
+            ]
             where 
                 is_valid_step = check_limits max
                 m_map = replace_elem_in_matrix 18 map (fst actPos) (snd actPos)
